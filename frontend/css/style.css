@@ -1,0 +1,8 @@
+body{font-family:Segoe UI,Arial,sans-serif;margin:0;background:#f3f4f6;color:#222}
+header{background:#3b2f4a;color:#fff;padding:20px;text-align:center}header h1{margin:0}header p{margin:4px 0 0;opacity:.85}
+main{max-width:1000px;margin:auto;padding:12px}section{background:#fff;margin:12px 0;padding:14px 18px;border-radius:8px;box-shadow:0 1px 3px #0002}
+h2{margin-top:0;font-size:1.1em;color:#3b2f4a}button{background:#3b2f4a;color:#fff;border:0;padding:7px 14px;border-radius:5px;cursor:pointer}button:disabled{opacity:.5}
+pre{background:#f7f7f7;padding:8px;overflow:auto;max-height:220px;font-size:12px}#map{height:520px;margin-top:10px}.small{font-size:12px;color:#666}
+.msg{background:#fde8e8;border:1px solid #e0a0a0;padding:10px;border-radius:6px}.ok{background:#e6f5e9;border-color:#9bc9a4}
+table{border-collapse:collapse;margin-top:8px}td,th{border:1px solid #ccc;padding:4px 8px;font-size:13px}
+.bar{background:#7b5ea7;height:14px;display:inline-block;vertical-align:middle}.legend{background:#fff;padding:6px 10px;line-height:18px;border-radius:5px}.legend i{display:inline-block;width:14px;height:14px;margin-right:6px}

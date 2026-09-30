@@ -1,0 +1,33 @@
+﻿X,Y,objectid,metallogenesis,locality,statename,toposheet,latitude,longitude,commodity,hostrock,morphogenesis,formation,latdd,londd
+8519651.695,1683438.4916,1,Sandur Schist Belt,Kanivenalli,Karnataka,57 B,14 57N,76 32-76 35E,Manganese,Metasediments-Metavolcanics,Concordant,Eastern Greenstone,14.95,76.53333333
+8799805.7472,2429678.0086,2,Sausar Belt,Gumgaon,Maharastra,55 O,21 19-21 29N,79 03-79 31E,Manganese,Schist,Concordant,Sausar Gp.,21.31666667,79.05
+8823924.9706,2445617.8817,3,Sausar Belt,Junewani,Maharastra,55 O,21 27N,79 16E,Manganese,Calc Gneiss And Schist,Concordant,Sausar Gp.,21.45,79.26666667
+8903703.9382,2455587.6995,4,Sausar Belt,Netra,Maharastra,55 O,21 32N,79 59E,Manganese,Schist,Concordant,Lohangi Fm.,21.53333333,79.98333333
+8879584.716,2445617.8817,5,Sausar Belt,Panchala,Maharastra,55 O,21 27N,79 46E,Manganese,Gondite,Concordant,Sausar Gp.,21.45,79.76666667
+8877729.3908,2477541.4852,6,Sausar Belt,Pawnia,Madhya Pradesh,55 O,21 43N,79 45E,Manganese,Gondite-Quartzite,Concordant,Lohangi Fm..,21.71666667,79.75
+8875874.0655,2473547.8135,7,Sausar Belt,Tirodi,Madhya Pradesh,55 O,21 41N,79 44E,Manganese,"Gondite,Quartzite",Bedded-Concordant,Lohangi Fm..,21.68333333,79.73333333
+8508519.7459,1706493.1881,8,Sandur Schist Belt,Ramgad,Karnataka,57 A,15 09N,76 26E,Manganese,Metasediments - Metavolcanics,Stratabound,Eastern Greenstone,15.15,76.43333333
+8844333.5435,2437646.129,9,Sausar Belt,Bhandarboli,Maharastra,55 O,21 23N,79 27E,Manganese,Gondite,Concordant,Sausar Gp.,21.38333333,79.45
+8927823.1616,2511525.2348,10,Sausar Belt,Dhansua-Laughar-Jagantoli,Madhya Pradesh,"64 B, 64 C",22 00N,80 12-80 15E,Manganese,"Schist,Phyllite",Concordant,Lohangi Fm.,22,80.2
+8924112.5123,2489528.0582,11,Balaghat Belt,Balaghat,Chattisgarh,64 C,21 49N,80 10E,Manganese,"Phyllite,Quartzite",Bedded-Concordant,Lohangi Fm..,21.81666667,80.16666667
+8540060.2691,1495933.9806,12,Chitradurga Belt,Harenaballi,Karnataka,57 C,13 19N,76 43E,Manganese,Metavolcanics-Metasediments,Volcanosedimentary-Bedded,Bababudan (Dharwar),13.31666667,76.71666667
+8473268.5746,1631643.467,13,Chitradurga Belt,Hullikatte,Karnataka,57 B,14 30N,76 07E,Manganese,"Bfq,Phyllite",Volcanosedimentary-Bedded,Bababudan (Dharwar),14.5,76.11666667
+8538514.1649,1497840.6349,14,Chitradurga Belt,Karekuchi,Karnataka,57 C,13 20 N,76 42 10 E,Manganese,"Bhq,Metapelite,Metavolcanics",Volcanosedimentary-Bedded,Bababudan (Dharwar),13.33333333,76.70277778
+9300743.4558,2068785.1464,15,Eastern Ghat Belt,Devada,Andhra Pradesh,65 N,18 16N,83 33E,Manganese,Khondalite,Sedimentary-Bedded,Eastern Ghat Sgp.,18.26666667,83.55
+9289611.5067,2080511.2087,16,Eastern Ghat Belt,Garbham,Andhra Pradesh,65 N,18 22-18 23N,83 27-83 30E,Manganese,Khondalite,Sedimentary-Bedded,Eastern Ghat Sgp.,18.36666667,83.45
+9263636.9592,2180461.5874,17,Eastern Ghat Belt,Nishikhal,Orissa,65 M,19 13N,83 13E,Manganese,Khondalite,Sedimentary-Bedded,Eastern Ghat Sgp.,19.21666667,83.21666667
+8252484.9171,1746891.5571,18,Goa Fe - Mn Province,Codgui,Goa,48 I,15 30 30N,74 08E,Manganese,Laterite,Supergene Enrichment,Dharwar Sgp.,15.5,74.13333333
+8250629.593,1702649.2339,19,Goa Fe - Mn Province,Colamba,Goa,48 I,15 07-15 09N,74 07 00-42E,Manganese,Manganiferous Phyllite,Lateritised,Dharwar Sgp.,15.11666667,74.11666667
+8256195.5675,1698805.8826,20,Goa Fe - Mn Province,Sulkorna,Goa,48 I,15 05-06N,74 10-11E,Manganese,Manganiferous Phyllite,Bedded-Sedimentary,Dharwar Sgp.,15.08333333,74.16666667
+8734869.3779,2241467.2121,21,Godavari Rift Belt,Pimperguda-Pimperkunta,Andhra Pradesh,56 I,19 44N,78 28E,Manganese,"Limestone,Shale,Chert",Bedded-Sedimentary,Penganga Gp.,19.73333333,78.46666667
+8957508.3595,2507523.6407,22,Sausar Belt,Ukwa,Madhya Pradesh,64 C,21 58N,80 28E,Manganese,Schist And Phyllite,Concordant-Tabular,Lohangi Fm.,21.96666667,80.46666667
+8946376.4105,2491526.6327,23,Sausar Belt,Laughar-Kamhatola,Madhya Pradesh,64 C,21 50N,80 22E,Manganese,Schists,Concordant,Lohangi Fm..,21.83333333,80.36666667
+8271038.1659,1739191.4016,24,Shimoga-Goa Belt,Anmod,Goa,48 I,15 26N,74 18E,Manganese,Laterite On Volcanics Of Greenstone,Volcanogenic-Enriched,Chitradurga Belt Gp.,15.43333333,74.3
+8287736.0896,1719951.808,25,Shimoga-Goa Belt,Hattikamba,Karnataka,48 I,15 16N,74 27E,Manganese,Laterite On Volcanosedimentary Sequence,Supergene Enrichment,Chitradurga Belt Gp.,15.26666667,74.45
+8278459.4657,1708415.3928,26,Shimoga-Goa Belt,Terali-Bisgod,Goa,48 I,15 10N,74 22E,Manganese,Laterite On Volcanosedimets Of Greenston,Supergene Enrichment,Chitradurga Belt Belt,15.16666667,74.36666667
+8734869.3779,2243438.3932,27,Godavari Rift Belt,Pimperkunta,Andhra Pradesh,56 I,19 45N,78 28E,Manganese,"Limestone,Shale,Chert",Bedded-Sedimentary,Penganga Gp.,19.75,78.46666667
+9489986.5901,2499523.2661,28,Jamda-Koira Belt,Koira,Orissa,73 G,21 54N,85 15E,Manganese,"Shale,Tuffaceous Shale",Volcanosedimentary-Bedded,Bonai Gp.,21.9,85.25
+9501118.5392,2491526.6327,29,Noamundi-Jamda Belt,Katsai,Orissa,73 G,21 50N,85 21E,Manganese,Tuffaceous Shale,Bedded-Volcanosedimentary,Bonai Gp.,21.83333333,85.35
+9502973.8644,2513526.3852,30,Noamundi-Jamda Sector,Roida,Orissa,73 F,22 01N,85 22,Manganese,Tuffaceous Shale,Bedded-Volcanosedimentary,Bonai Gp.,22.01666667,85.36666667
+9506684.5137,2517529.3911,31,Noamundi-Jamda Sector,Saramdah-Bhadrasai,Orissa,73 F,22 03N,85 24E,Manganese,Tuffaceous Shale,Bedded-Volcanosedimentary,Bonai Gp.,22.05,85.4
+9478854.641,2489528.0582,32,Noamundi-Jamda Sector,Sarkunda,Orissa,73 G,21 49N,85 09E,Manganese,Metasediments-Metavolcanics,Bedded-Volcanosedimentary,Iron Oregroup,21.81666667,85.15
