@@ -22,3 +22,36 @@ def run_prediction(name):
              for _, r in g.iterrows()]
     (OUT / "prospectivity.geojson").write_text(json.dumps({"type": "FeatureCollection", "name": "Predicted Manganese Prospectivity", "features": feats}))
     return {"cells": len(g), "cell_size_deg": step, "counts": g["class"].value_counts().to_dict()}
+if __name__ == "__main__":
+    import sys
+
+    if len(sys.argv) < 2:
+        print("Usage: python -m ml.predict <model>")
+        print("Available models: random_forest, svm, xgboost")
+        sys.exit(1)
+
+    model_name = sys.argv[1]
+
+    print("=" * 60)
+    print(f"RUNNING PREDICTION: {model_name.upper()}")
+    print("=" * 60)
+
+    result = run_prediction(model_name)
+
+    print("\nPREDICTION COMPLETED")
+    print("-" * 60)
+    print(f"Model       : {model_name}")
+    print(f"Grid cells  : {result['cells']}")
+    print(f"Cell size   : {result['cell_size_deg']} degrees")
+
+    print("\nPROSPECTIVITY COUNTS")
+    print("-" * 60)
+
+    for category, count in result["counts"].items():
+        print(f"{category:<12}: {count}")
+
+    print("\nOUTPUT FILES")
+    print("-" * 60)
+    print("prediction.csv")
+    print("prospectivity.geojson")
+    print("=" * 60)

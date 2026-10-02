@@ -29,22 +29,92 @@ def feature_image(ee, bbox):
     dem = ee.Terrain.products(ee.Image("USGS/SRTMGL1_003")).select(["elevation", "slope", "aspect"])
     return s2.addBands(idx).addBands(dem).select(FEATURES)
 
-def extract(points, bbox, chunk=400):
-    """points: DataFrame(lat, lon). Returns DataFrame with features; rows lacking satellite data are dropped."""
-    ee = init_ee(); img = feature_image(ee, bbox); rows = []
-    pts = points.reset_index(drop=True)
-    for s in range(0, len(pts), chunk):
-        part = pts.iloc[s:s + chunk]
-        fc = ee.FeatureCollection([ee.Feature(ee.Geometry.Point([float(r.lon), float(r.lat)]), {"pid": int(i)})
-                                   for i, r in part.iterrows()])
-        try: res = img.sampleRegions(collection=fc, scale=30, geometries=False).getInfo()
-        except Exception as e: raise UserError(f"Earth Engine request failed: {str(e)[:200]}")
-        rows += [f["properties"] for f in res["features"]]
-    f = pd.DataFrame(rows)
-    if f.empty: raise UserError("Satellite data unavailable for the sampled points.")
-    out = pts.join(f.set_index("pid"), how="inner").dropna(subset=FEATURES)
-    return out
+def extract(points, bbox, chunk=100):
+    """Extract satellite + terrain features in small batches to avoid Earth Engine memory errors."""
 
+    ee = init_ee()
+    img = feature_image(ee, bbox)
+    rows = []
+
+    pts = points.reset_index(drop=True)
+
+    print(f"Extracting features for {len(pts)} points...")
+    print(f"Batch size: {chunk}")
+
+    for s in range(0, len(pts), chunk):
+
+        part = pts.iloc[s:s + chunk]
+
+        print(
+            f"Processing points {s + 1}-{min(s + chunk, len(pts))} "
+            f"of {len(pts)}..."
+        )
+
+        features = []
+
+        for i, r in part.iterrows():
+            features.append(
+                ee.Feature(
+                    ee.Geometry.Point([
+                        float(r.lon),
+                        float(r.lat)
+                    ]),
+                    {"pid": int(i)}
+                )
+            )
+
+        fc = ee.FeatureCollection(features)
+
+        try:
+            result = (
+                img.sampleRegions(
+                    collection=fc,
+                    scale=30,
+                    geometries=False,
+                    tileScale=4
+                )
+                .getInfo()
+            )
+
+        except Exception as e:
+            raise UserError(
+                f"Earth Engine request failed while processing "
+                f"points {s + 1}-{min(s + chunk, len(pts))}: "
+                f"{str(e)[:300]}"
+            )
+
+        rows.extend(
+            f["properties"]
+            for f in result["features"]
+        )
+
+    if not rows:
+        raise UserError(
+            "Satellite data unavailable for the sampled points."
+        )
+
+    f = pd.DataFrame(rows)
+
+    if f.empty:
+        raise UserError(
+            "Satellite data unavailable for the sampled points."
+        )
+
+    out = (
+        pts
+        .join(
+            f.set_index("pid"),
+            how="inner"
+        )
+        .dropna(subset=FEATURES)
+    )
+
+    print(
+        f"Successfully extracted features for "
+        f"{len(out)} / {len(pts)} points."
+    )
+
+    return out
 def make_grid(bbox, step=0.02):
     while ((bbox[2] - bbox[0]) / step) * ((bbox[3] - bbox[1]) / step) > MAX_GRID_CELLS: step *= 1.25
     lons = np.arange(bbox[0] + step / 2, bbox[2], step); lats = np.arange(bbox[1] + step / 2, bbox[3], step)
