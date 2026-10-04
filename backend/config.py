@@ -14,8 +14,28 @@ STUDY_STATE = os.getenv("STUDY_STATE", "").strip()
 MAX_GRID_CELLS = 15000
 BLOCK_DEG = 0.25          # spatial CV block size (degrees)
 LOW_T, HIGH_T = 0.40, 0.70  # probability thresholds: LOW<0.40<=MODERATE<0.70<=HIGH
-FEATURES = ["B2", "B3", "B4", "B8", "B11", "B12", "NDVI", "SWIR_ratio", "iron_oxide",
-            "ferrous", "elevation", "slope", "aspect"]
+FEATURES = [
+    "B2",
+    "B3",
+    "B4",
+    "B8",
+    "B11",
+    "B12",
+
+    "NDVI",
+    "SWIR_ratio",
+    "iron_oxide",
+    "ferrous",
+
+    "B8_B11_ratio",
+    "B11_B4_ratio",
+    "B12_B8_ratio",
+    "B8_B2_ratio",
+
+    "elevation",
+    "slope",
+    "aspect"
+]
 
 class UserError(Exception):
     """Error with a message that is safe/understandable to show in the dashboard."""

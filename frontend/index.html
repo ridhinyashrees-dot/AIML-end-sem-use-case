@@ -1,17 +1,932 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Manganese Prospectivity Mapping</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"><link rel="stylesheet" href="css/style.css"></head><body>
-<header><h1>Manganese Prospectivity Mapping</h1><p>AI/ML + Satellite Remote Sensing for Manganese Exploration</p></header>
-<main>
-<div id="msg" class="msg" hidden></div>
-<section><h2>1. Project Overview</h2><p>Using AI/ML and Space Technology to Identify Manganese Reserves and Overcome Production Shortfalls. The system learns from real GSI manganese occurrences plus Sentinel-2 and SRTM terrain data and outputs <b>predicted prospectivity</b>. It does <b>not</b> confirm reserves: that needs field investigation and official geological assessment. By ranking zones, it can narrow exploration search areas and help plan field surveys; it does not itself raise mining output.</p><div id="status"></div></section>
-<section><h2>2. Study Area &amp; 3. Manganese Occurrence Data</h2><label>State filter (optional, e.g. Odisha): <input id="state"></label> <button onclick="loadOcc()">Load occurrences</button><pre id="occ"></pre></section>
-<section><h2>4. Satellite &amp; 5. Terrain Data</h2><p>Sentinel-2 SR Harmonized (COPERNICUS/S2_SR_HARMONIZED), bands B2 B3 B4 B8 B11 B12, cloud-masked median composite, derived NDVI, SWIR ratio, iron oxide, ferrous ratio. Period: <span id="period"></span>.<br>Terrain: SRTM (USGS/SRTMGL1_003) elevation, slope, aspect.</p>
-<button onclick="buildFeat()">Build feature dataset &amp; validation summary</button><pre id="summary"></pre></section>
-<section><h2>6. Model Selection &amp; 7. Performance</h2><label><input type="checkbox" class="m" value="random_forest" checked> Random Forest</label> <label><input type="checkbox" class="m" value="svm" checked> SVM</label> <label><input type="checkbox" class="m" value="xgboost" checked> XGBoost</label>
-<button onclick="train()">Train (spatial block CV)</button><p class="small">Metrics come from out-of-fold predictions on geographically separate blocks.</p><div id="metrics"></div></section>
-<section><h2>8. Feature Importance</h2><select id="fiModel" onchange="showFI()"></select><div id="fi"></div></section>
-<section><h2>9-11. Predicted Manganese Prospectivity Map</h2><label>Model: <select id="pm"><option>random_forest</option><option>svm</option><option>xgboost</option></select></label> <button onclick="predict()">Run prediction</button> <span id="pinfo"></span>
-<div id="map"></div><p class="small">Red = known GSI occurrences. Colours show model-predicted prospectivity, not confirmed reserves.</p></section>
-<section><h2>12. Download Results</h2><a href="/api/download/prediction.csv">prediction.csv</a> | <a href="/api/download/features.csv">features.csv</a> | <a href="/api/download/prospectivity.geojson">prospectivity.geojson</a></section>
-</main><script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><script src="js/app.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Manganese Exploration Analytics</title>
+
+    <!-- Leaflet -->
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    >
+
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+<!-- =========================================================
+     HERO / HEADER
+========================================================= -->
+
+<header class="hero">
+
+    <div class="hero-inner">
+
+        <!-- BRAND -->
+
+        <div class="brand">
+
+            <div class="brand-icon">
+                Mn
+            </div>
+
+            <div>
+                <h1>MANGANESE EXPLORATION ANALYTICS</h1>
+                <p>AI/ML + Satellite Remote Sensing</p>
+            </div>
+
+        </div>
+
+
+        <!-- HERO CONTENT -->
+
+        <div class="hero-content">
+
+            <div class="hero-copy">
+
+                <div class="eyebrow">
+                    MINERAL EXPLORATION INTELLIGENCE
+                </div>
+
+                <h2>
+                    Discover areas with higher
+                    <span>manganese prospectivity.</span>
+                </h2>
+
+                <p>
+                    Combining known GSI manganese occurrences,
+                    Sentinel-2 satellite data, SRTM terrain
+                    information and machine learning to support
+                    mineral exploration.
+                </p>
+
+                <button
+                    id="startBtn"
+                    class="primary-btn"
+                    type="button"
+                >
+                    Start Exploration
+                </button>
+
+            </div>
+
+
+            <!-- SIMPLE VISUAL -->
+
+            <div class="hero-visual">
+
+                <div class="orbit-card">
+
+                    <div class="orbit-earth">
+                        <div class="earth-glow"></div>
+                        <div class="earth-circle">🌍</div>
+                    </div>
+
+                    <div class="satellite satellite-one">🛰</div>
+                    <div class="satellite satellite-two">🛰</div>
+
+                    <div class="orbit-line orbit-one"></div>
+                    <div class="orbit-line orbit-two"></div>
+
+                    <div class="visual-label">
+                        <strong>SPACE + AI</strong>
+                        <span>Prospectivity Mapping</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</header>
+
+
+<!-- =========================================================
+     SYSTEM STATUS
+========================================================= -->
+
+<section class="status-section">
+
+    <div class="status-card">
+
+        <div class="status-item">
+
+            <span
+                id="occStatusDot"
+                class="status-dot"
+            ></span>
+
+            <div>
+                <small>Occurrence Data</small>
+                <strong id="occStatus">
+                    Checking...
+                </strong>
+            </div>
+
+        </div>
+
+
+        <div class="status-item">
+
+            <span
+                id="satStatusDot"
+                class="status-dot"
+            ></span>
+
+            <div>
+                <small>Satellite Data</small>
+                <strong id="satStatus">
+                    Checking...
+                </strong>
+            </div>
+
+        </div>
+
+
+        <div class="status-item">
+
+            <span
+                id="modelStatusDot"
+                class="status-dot"
+            ></span>
+
+            <div>
+                <small>AI Model</small>
+                <strong id="modelStatus">
+                    Not ready
+                </strong>
+            </div>
+
+        </div>
+
+
+        <div class="status-item">
+
+            <span
+                id="resultStatusDot"
+                class="status-dot"
+            ></span>
+
+            <div>
+                <small>Prospectivity Map</small>
+                <strong id="resultStatus">
+                    Not generated
+                </strong>
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================
+     MAIN
+========================================================= -->
+
+<main class="container">
+
+
+    <!-- MESSAGE -->
+
+    <div
+        id="message"
+        class="message hidden"
+    ></div>
+
+
+    <!-- =====================================================
+         01. EXPLORE AREA
+    ====================================================== -->
+
+    <section
+        id="exploration"
+        class="dashboard-card exploration-card"
+    >
+
+        <div class="section-header">
+
+            <div class="section-title-group">
+
+                <div class="section-number">
+                    01
+                </div>
+
+                <div>
+
+                    <h2>
+                        Explore an Area
+                    </h2>
+
+                    <p>
+                        Select a study area to begin
+                        manganese prospectivity analysis.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="data-source">
+                GSI + Sentinel-2 + SRTM
+            </div>
+
+        </div>
+
+
+        <div class="exploration-grid">
+
+
+            <!-- STUDY AREA -->
+
+            <div class="input-card">
+
+                <label for="state">
+                    Study Area
+                </label>
+
+                <select id="state">
+
+                    <option value="">
+                        All available occurrences
+                    </option>
+
+                </select>
+
+                <small id="stateHelp">
+                    Select a state or analyze all
+                    available GSI occurrences.
+                </small>
+
+            </div>
+
+
+            <!-- SATELLITE PERIOD -->
+
+            <div class="input-card">
+
+                <label>
+                    Satellite Analysis Period
+                </label>
+
+                <div
+                    id="period"
+                    class="period-display"
+                >
+                    Loading...
+                </div>
+
+                <small>
+                    Sentinel-2 Surface Reflectance
+                </small>
+
+            </div>
+
+
+            <!-- ANALYZE -->
+
+            <div class="analyze-card">
+
+                <button
+                    id="analyzeBtn"
+                    class="analyze-btn"
+                    type="button"
+                >
+                    Analyze Area
+                </button>
+
+                <small>
+                    The system automatically prepares
+                    satellite and terrain features,
+                    trains the model and generates
+                    the prospectivity map.
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             PROGRESS
+        ================================================== -->
+
+        <div
+            id="progressPanel"
+            class="progress-panel hidden"
+        >
+
+            <div class="progress-top">
+
+                <div>
+
+                    <strong id="progressTitle">
+                        Preparing analysis...
+                    </strong>
+
+                    <span id="progressText">
+                        Please wait.
+                    </span>
+
+                </div>
+
+                <div
+                    id="progressPercent"
+                    class="progress-percent"
+                >
+                    0%
+                </div>
+
+            </div>
+
+
+            <div class="progress-track">
+
+                <div
+                    id="progressBar"
+                    class="progress-bar"
+                ></div>
+
+            </div>
+
+
+            <div class="progress-steps">
+
+                <div
+                    id="stepFeatures"
+                    class="progress-step"
+                >
+                    <span>1</span>
+                    <label>
+                        Satellite Features
+                    </label>
+                </div>
+
+                <div
+                    id="stepModel"
+                    class="progress-step"
+                >
+                    <span>2</span>
+                    <label>
+                        AI Model
+                    </label>
+                </div>
+
+                <div
+                    id="stepPrediction"
+                    class="progress-step"
+                >
+                    <span>3</span>
+                    <label>
+                        Prospectivity
+                    </label>
+                </div>
+
+                <div
+                    id="stepMap"
+                    class="progress-step"
+                >
+                    <span>4</span>
+                    <label>
+                        Map
+                    </label>
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         02. KNOWN OCCURRENCES
+    ====================================================== -->
+
+    <section class="dashboard-card">
+
+        <div class="section-header">
+
+            <div class="section-title-group">
+
+                <div class="section-number">
+                    02
+                </div>
+
+                <div>
+
+                    <h2>
+                        Known Manganese Occurrences
+                    </h2>
+
+                    <p>
+                        Reference locations from the official
+                        GSI manganese occurrence dataset.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="occurrence-count">
+
+                <strong id="occCount">
+                    0
+                </strong>
+
+                <span>
+                    occurrences
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="occurrence-layout">
+
+
+            <div class="occurrence-info">
+
+                <div class="stat-box">
+
+                    <span
+                        class="stat-number"
+                        id="selectedCount"
+                    >
+                        0
+                    </span>
+
+                    <span class="stat-label">
+                        Selected area
+                    </span>
+
+                </div>
+
+
+                <div class="info-box">
+
+                    <strong>
+                        What are these points?
+                    </strong>
+
+                    <p>
+                        These are known manganese
+                        occurrence locations used as
+                        reference observations for the
+                        prospectivity analysis.
+                    </p>
+
+                </div>
+
+
+                <div class="mini-list">
+
+                    <div>
+                        <span class="mini-dot"></span>
+                        GSI occurrence
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="map-wrapper">
+
+                <div id="occurrenceMap"></div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         03. PROSPECTIVITY MAP
+    ====================================================== -->
+
+    <section
+        id="resultsSection"
+        class="dashboard-card result-section"
+    >
+
+        <div class="section-header">
+
+            <div class="section-title-group">
+
+                <div class="section-number">
+                    03
+                </div>
+
+                <div>
+
+                    <h2>
+                        Manganese Prospectivity Map
+                    </h2>
+
+                    <p>
+                        AI/ML predicted prospectivity across
+                        the selected study area.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- RESULT SUMMARY -->
+
+        <div class="map-summary">
+
+
+            <div class="result-stat low">
+
+                <span class="result-label">
+                    <span class="color-dot low-dot"></span>
+                    LOW
+                </span>
+
+                <strong id="lowCount">
+                    —
+                </strong>
+
+                <small>
+                    Lower prospectivity
+                </small>
+
+            </div>
+
+
+            <div class="result-stat moderate">
+
+                <span class="result-label">
+                    <span class="color-dot moderate-dot"></span>
+                    MODERATE
+                </span>
+
+                <strong id="moderateCount">
+                    —
+                </strong>
+
+                <small>
+                    Moderate prospectivity
+                </small>
+
+            </div>
+
+
+            <div class="result-stat high">
+
+                <span class="result-label">
+                    <span class="color-dot high-dot"></span>
+                    HIGH
+                </span>
+
+                <strong id="highCount">
+                    —
+                </strong>
+
+                <small>
+                    Higher prospectivity
+                </small>
+
+            </div>
+
+
+            <div class="result-stat total">
+
+                <span class="result-label">
+                    TOTAL
+                </span>
+
+                <strong id="totalCount">
+                    —
+                </strong>
+
+                <small>
+                    Analyzed cells
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <!-- MAIN MAP -->
+
+        <div class="main-map-wrapper">
+
+            <div id="map"></div>
+
+
+            <!-- MAP LEGEND -->
+
+            <div class="map-overlay">
+
+                <strong>
+                    Prospectivity
+                </strong>
+
+
+                <div class="legend-item">
+
+                    <span
+                        class="legend-box low-bg"
+                    ></span>
+
+                    <span>
+                        LOW
+                    </span>
+
+                </div>
+
+
+                <div class="legend-item">
+
+                    <span
+                        class="legend-box moderate-bg"
+                    ></span>
+
+                    <span>
+                        MODERATE
+                    </span>
+
+                </div>
+
+
+                <div class="legend-item">
+
+                    <span
+                        class="legend-box high-bg"
+                    ></span>
+
+                    <span>
+                        HIGH
+                    </span>
+
+                </div>
+
+
+                <div class="legend-item">
+
+                    <span
+                        class="occurrence-marker"
+                    ></span>
+
+                    <span>
+                        GSI occurrence
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="map-note">
+
+            <strong>
+                How to read this map:
+            </strong>
+
+            <span>
+                Green indicates lower prospectivity,
+                yellow indicates moderate prospectivity,
+                and red indicates higher prospectivity.
+                These zones represent areas with
+                characteristics similar to known
+                manganese occurrences.
+            </span>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         04. IMPORTANT FEATURES
+    ====================================================== -->
+
+    <section class="dashboard-card">
+
+        <div class="section-header compact">
+
+            <div class="section-title-group">
+
+                <div class="section-number">
+                    04
+                </div>
+
+                <div>
+
+                    <h2>
+                        Important Features
+                    </h2>
+
+                    <p>
+                        Features influencing the selected
+                        model's prediction.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="featureImportance"
+            class="feature-list"
+        >
+
+            <div class="empty-state">
+
+                Run an analysis to view
+                feature importance.
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         05. EXPLORATION RESULTS
+    ====================================================== -->
+
+    <section class="dashboard-card">
+
+        <div class="section-header">
+
+            <div class="section-title-group">
+
+                <div class="section-number">
+                    05
+                </div>
+
+                <div>
+
+                    <h2>
+                        Exploration Results
+                    </h2>
+
+                    <p>
+                        Download the generated analysis files.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="download-grid">
+
+
+            <a
+                href="/api/download/prediction.csv"
+                class="download-card"
+            >
+
+                <div class="download-icon">
+                    ↓
+                </div>
+
+                <div>
+
+                    <strong>
+                        Prediction Data
+                    </strong>
+
+                    <small>
+                        CSV prospectivity predictions
+                    </small>
+
+                </div>
+
+            </a>
+
+
+            <a
+                href="/api/download/prospectivity.geojson"
+                class="download-card"
+            >
+
+                <div class="download-icon">
+                    ◈
+                </div>
+
+                <div>
+
+                    <strong>
+                        Prospectivity Map
+                    </strong>
+
+                    <small>
+                        GeoJSON map layer
+                    </small>
+
+                </div>
+
+            </a>
+
+
+            <a
+                href="/api/download/features.csv"
+                class="download-card"
+            >
+
+                <div class="download-icon">
+                    ≡
+                </div>
+
+                <div>
+
+                    <strong>
+                        Feature Dataset
+                    </strong>
+
+                    <small>
+                        Extracted ML features
+                    </small>
+
+                </div>
+
+            </a>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         DISCLAIMER
+    ====================================================== -->
+
+    <section class="disclaimer">
+
+        <strong>
+            Important scientific note
+        </strong>
+
+        <p>
+            This system produces a manganese prospectivity
+            prediction, not a confirmed mineral reserve estimate.
+            The predicted zones are intended to help prioritize
+            areas for further exploration. Geological field
+            investigation and official assessment are required
+            before confirming manganese reserves.
+        </p>
+
+    </section>
+
+</main>
+
+
+<!-- =========================================================
+     FOOTER
+========================================================= -->
+
+<footer>
+
+    <p>
+        Manganese Exploration Analytics
+        · AI/ML + Space Technology
+    </p>
+
+    <p>
+        GSI occurrence data · Sentinel-2 · SRTM
+    </p>
+
+</footer>
+
+
+<!-- =========================================================
+     JAVASCRIPT
+========================================================= -->
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script src="js/app.js"></script>
+
+</body>
+</html>

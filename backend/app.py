@@ -30,9 +30,28 @@ def status():
 
 @app.route("/api/occurrences")
 def occurrences():
-    df, rep = pp.load_occurrences()
-    return jsonify(report=rep, points=df[["lat", "lon", "locality", "state", "host_rock"]].fillna("").to_dict("records"))
+    state = request.args.get("state", "").strip()
 
+    df, rep = pp.load_occurrences()
+
+    if state:
+        df = df[
+            df["state"]
+            .fillna("")
+            .astype(str)
+            .str.strip()
+            .str.lower()
+            == state.lower()
+        ].copy()
+
+    return jsonify(
+        report=rep,
+        points=df[
+            ["lat", "lon", "locality", "state", "host_rock"]
+        ]
+        .fillna("")
+        .to_dict("records")
+    )
 @app.route("/api/build-features", methods=["POST"])
 def build_features():
     from ml.feature_extraction import extract
